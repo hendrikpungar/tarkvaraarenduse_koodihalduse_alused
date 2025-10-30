@@ -1,6 +1,0 @@
-name,age,city,income,income_tax,is_adult,age_group
-Anna,22,Tallinn,1200,288.0,True,noor
-Jaan,35,Tartu,2100,504.0,True,keskealine
-Mari,19,Tallinn,950,228.0,True,noor
-Peeter,42,Pärnu,1800,432.0,True,keskealine
-Liis,28,Tartu,1600,384.0,True,keskealine
