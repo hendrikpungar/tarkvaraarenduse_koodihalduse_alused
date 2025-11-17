@@ -239,8 +239,70 @@ Sul on andmed õpilaste kohta kolmest klassist: Bioloogia, Keemia ja Füüsika. 
     -   Kasutades maatriksit, arvuta iga klassi õpilaste keskmine tulemus.
 
 ```{r}
-# Lisa siia vastuste ja lahenduste kood
+# 1. Vektor
+nimed <- c("Anna", "Mike", "Luis")
+vanused <- c(20, 21, 19)
+tulemused <- c(85, 78, 90)
 
+print("Bioloogia klassi nimed:")
+print(nimed)
+print("Vanused:")
+print(vanused)
+print("Tulemused:")
+print(tulemused)
+
+# 2. Kõigi klasside vanused ja tulemused
+vanused <- c(20, 21, 19, 22, 20, 23, 24, 22, 25)
+tulemused <- c(85, 78, 90, 88, 76, 95, 87, 80, 92)
+
+# Loo maatriks 9 reaga ja 2 veeruga
+opilaste_maatriks <- matrix(c(vanused, tulemused), nrow = 9, ncol = 2)
+colnames(opilaste_maatriks) <- c("Vanus", "Tulemus")
+rownames(opilaste_maatriks) <- c("Bio1", "Bio2", "Bio3", "Keemia1", "Keemia2", "Keemia3", "Füüsika1", "Füüsika2", "Füüsika3")
+
+print("Õpilaste maatriks:")
+print(opilaste_maatriks)
+
+# 3. Kõik õpilased
+nimed <- c("Anna", "Mike", "Luis", "Sam", "Ella", "Ravi", "Mia", "Jack", "Olivia")
+klassid <- c("Bioloogia", "Bioloogia", "Bioloogia", "Keemia", "Keemia", "Keemia", "Füüsika", "Füüsika", "Füüsika")
+
+opilased_df <- data.frame(
+  nimi = nimed,
+  vanus = vanused,
+  tulemus = tulemused,
+  klass = klassid
+)
+
+print("Õpilaste dataframe:")
+print(opilased_df)
+
+# 4. Anna andmed
+anna_list <- list(
+  nimi = "Anna",
+  vanus = 20,
+  tulemus = 85,
+  klass = "Bioloogia"
+)
+
+print("Anna andmed listina:")
+print(anna_list)
+
+# 5. Analüüs
+# a)õpilased, kelle tulemus on üle 85
+print("Õpilased tulemusega üle 85:")
+head_opilased <- opilased_df[opilased_df$tulemus > 85, c("nimi", "klass")]
+print(head_opilased)
+
+# b) iga klassi keskmine tulemus maatriksist
+print("\nKlasside keskmised tulemused:")
+bio_keskmine <- mean(opilaste_maatriks[1:3, "Tulemus"])
+keemia_keskmine <- mean(opilaste_maatriks[4:6, "Tulemus"])
+fuusika_keskmine <- mean(opilaste_maatriks[7:9, "Tulemus"])
+
+print(paste("Bioloogia keskmine:", round(bio_keskmine, 2)))
+print(paste("Keemia keskmine:", round(keemia_keskmine, 2)))
+print(paste("Füüsika keskmine:", round(fuusika_keskmine, 2)))
 ```
 
 ## Tidyverse laadimine
@@ -316,10 +378,12 @@ head(data_excel)
 Exceli faili puhul tuleb kindlasti määrata õige lehe nimi `sheet` parameetriga
 funktsioonis `read_excel()`.
 
+
 ### Ülesanne:
 
 Leia paremal asuvast `Abi` paneelist `read_tsv` funktsioon. Mitu erinevat
 käsurea argumenti on `read_tsv` funktsioonil defineeritud?
+**VASTUS: read_tsv funktsioonil on 20 argumenti.**
 
 ## Andmete kõrgetasemeline ülevaade tidyverse toruga (pipe, `%>%`)
 
@@ -580,10 +644,78 @@ erinevate ravimite ja nende dooside mõju mälule.
     [data-wrangling-cheatsheet](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)
 
 ```{r}
+Isd = read_delim("./andmed/Islander_data.csv")
 
+# Kuva andmestiku esimesed 10 rida
+head(Isd, 10)
+
+# Arvuta mälu skooride üldine keskmine enne ja pärast ravimi manustamist
+mean(Isd$Mem_Score_Before, na.rm = TRUE)
+mean(Isd$Mem_Score_After, na.rm = TRUE)
+mean(Isd$Diff, na.rm = TRUE)
+
+# 2. Ravimite analüüs
+ravimite_analyys <- Isd %>%
+  group_by(Drug) %>%
+  summarize(
+    keskmine_diff = mean(Diff, na.rm = TRUE),
+    osalejate_arv = n()
+  ) %>%
+  arrange(desc(keskmine_diff))
+
+cat("\n2. Ravimite analüüs:\n")
+print(ravimite_analyys)
+
+# 3. Doosi analüüs
+doosi_analyys <- Isd %>%
+  group_by(Drug, Dosage) %>%
+  summarize(
+    keskmine_diff = mean(Diff, na.rm = TRUE),
+    .groups = 'drop'
+  ) %>%
+  arrange(Drug, desc(keskmine_diff))
+
+cat("\n3. Doosi analüüs:\n")
+print(doosi_analyys)
+
+# 4. Vanuserühma analüüs
+vanuseruhma_analyys <- Isd %>%
+  mutate(
+    age_group = case_when(
+      age < 30 ~ "Noor",
+      age >= 30 & age <= 50 ~ "Keskealine",
+      age > 50 ~ "Seenior"
+    )
+  ) %>%
+  group_by(age_group, Drug) %>%
+  summarize(
+    keskmine_diff = mean(Diff, na.rm = TRUE),
+    osalejate_arv = n(),
+    .groups = 'drop'
+  ) %>%
+  arrange(age_group, desc(keskmine_diff))
+
+cat("\n4. Vanuserühma analüüs:\n")
+print(vanuseruhma_analyys)
+
+cat("\nJäreldus: Vaadates erinevate vanuserühmade tulemusi, võib märgata, et ravimi tõhusus võib erineda vanuserühmade lõikes.\n")
+
+# 5. Õnnelik/Kurb rühma analüüs
+emotsiooni_analyys <- Isd %>%
+  group_by(`Happy_Sad_group`) %>%
+  summarize(
+    keskmine_enne = mean(Mem_Score_Before, na.rm = TRUE),
+    keskmine_parast = mean(Mem_Score_After, na.rm = TRUE),
+    keskmine_diff = mean(Diff, na.rm = TRUE),
+    osalejate_arv = n(),
+    .groups = 'drop'
+  )
+
+cat("\n5. Õnnelik/Kurb rühma analüüs:\n")
+print(emotsiooni_analyys)
+
+cat("\nJäreldus: Emotsiooni priming mõjutab mälu skoori. Võrdleme H (happy) ja S (sad) rühmade keskmist erinevust mälu skoorides.\n")
 ```
-
-# Andmestiku kohta
 
 Näidetes kasutame
 [Kaggle](https://www.kaggle.com/datasets/steveahn/memory-test-on-drugged-islanders-data?resource=download)

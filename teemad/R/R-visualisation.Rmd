@@ -93,7 +93,7 @@ Andmestiku kirjeldus
 Lihtsaim viis andmete lugemiseks on kasutada `read_csv` käsku:
 
 ```{r}
-Isd <- read_csv('../../data/Islander_data.csv')
+Isd <- read_csv('./andmed/Islander_data.csv')
 
 Isd
 ```
@@ -179,9 +179,16 @@ erinevate ravimite ja nende dooside mõju mälu taastamisele.
         (*vihje:* `case_when`)
 
 ```{r}
-# Loo vanuserühma veerg
+Isd <- Isd %>%
+  mutate(
+    age_group = case_when(
+      age < 30 ~ "Noor",
+      age >= 30 & age <= 50 ~ "Keskealine",
+      age > 50 ~ "Seenior"
+    )
+  )
 
-
+head(Isd)
 ```
 
 # Joonistamine ggplot2-ga
@@ -445,9 +452,10 @@ heledaks (läbipaistvaks), kasuta positsiooni `jitter`. Rohkem võimalusi leiad
 spikrilt.
 
 ```{r fig.width=8, fig.height=6}
-
-
-
+ggplot(Isd, aes(x = Drug, y = Diff)) +
+  geom_violin(aes(fill = Drug)) +
+  geom_point(position = position_jitter(width = 0.2), alpha = 0.1, size = 1) +
+  theme_minimal()
 ```
 
 ## Arvuliste ja diskreetsete muutujate skaleerimine
@@ -799,10 +807,45 @@ kujutiseni (*ilma* legendita).
 Uuri rohkem võimalusi erinevatelt
 [spikritelt](https://posit.co/resources/cheatsheets/).
 
-```{r}
+```{r fig.width=10, fig.height=8}
+library(patchwork)
 
+Isd_refactored <- Isd %>%
+  mutate(Drug_name = fct_recode(Drug,
+                                "Alprazolam" = "A",
+                                "Triazolam" = "T",
+                                "Suhkur" = "S"))
 
+p1 <- ggplot(Isd_refactored, aes(x = Drug_name, y = Diff, fill = Drug_name)) +
+  geom_boxplot() +
+  labs(x = "Ravim", y = "Mälu skoori erinevus") +
+  theme_minimal() +
+  theme(legend.position = "none")
 
+p2 <- ggplot(Isd_refactored, aes(x = age, y = Diff, color = Drug_name)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(x = "Vanus", y = "Mälu skoori erinevus", color = "Ravim") +
+  theme_minimal()
+
+p3 <- ggplot(Isd_refactored, aes(x = Dosage, y = Diff, fill = Drug_name)) +
+  geom_col(position = "dodge") +
+  labs(x = "Doos", y = "Mälu skoori erinevus") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+p4 <- ggplot(Isd_refactored, aes(x = Happy_Sad_group, y = Diff, fill = Happy_Sad_group)) +
+  geom_violin() +
+  labs(x = "Emotsiooni rühm", y = "Mälu skoori erinevus") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+(p1 + p2) / (p3 + p4) +
+  plot_annotation(
+    title = "Ravimite mõju analüüs mälule",
+    caption = "Andmeallikas: Islander andmestik"
+  ) +
+  plot_layout(guides = "collect")
 ```
 
 #### Boonus
