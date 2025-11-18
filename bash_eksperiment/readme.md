@@ -10,7 +10,7 @@ Projekt loob 10 andmefaili, millest igaüks sisaldab 200 juhuslikku täisarvu va
 
 ```
 bash_eksperiment/
-├── data/              # Genereeritud andmefailid (data1.txt - data10.txt)
+├── data/              # Genereeritud andmefailid 
 ├── scripts/           # Skriptid andmete genereerimiseks ja töötlemiseks
 │   ├── generate_data.py      # Python skript juhuslike arvude genereerimiseks
 │   ├── generate_data.sh      # Bash skript, mis käivitab Python skripti N korda
@@ -74,8 +74,8 @@ head -n 20 results/summary_total_unique_numbers_counted.txt
 ## Kasutatud Bash käskude seletus
 
 - `cat data/*.txt` - Ühendab kõikide data kataloogi .txt failide sisu
-- `sort -n` - Sorteerib read numbriliselt (mitte tähestikujärjestuses)
+- `sort -n` - Sorteerib read numbriliselt
 - `uniq -c` - Eemaldab duplikaadid ja loendab iga unikaalse rea esinemisi
-- `sort -rn` - Sorteerib numbriliselt vastupidises järjekorras (kõige sagedasemad enne)
+- `sort -rn` - Sorteerib numbriliselt vastupidises järjekorras
 - `>` - Suunab väljundi faili
 
