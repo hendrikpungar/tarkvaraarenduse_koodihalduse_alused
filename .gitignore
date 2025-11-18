@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+*.egg-info/
+dist/
+build/
+
+# R
+.Rhistory
+.RData
+.Rproj.user
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# data ja results
+bash_eksperiment/data/
+bash_eksperiment/results/
+
+# os
+.DS_Store
+Thumbs.db
